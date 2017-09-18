@@ -4,29 +4,32 @@
 import VNode from './vnode'
 import isType from './utils/isType'
 
-export default function h (nodeName, attributes, children) {
+export default function h (nodeName, attributes, ...children) {
   const postChildren = []
   let lastSimpleType = false, simpleType = false
 
-  for (let child of children) {
-    if (isType(child, ['null', 'boolean'])) {
-      child = ''
-    }
+  if (!isType(children, 'null') && children.length > 0) {
 
-    if (isType(child, ['string', 'number'])) {
-      child += String(child)
-      simpleType = true
-    } else if (isType(child, 'function')) {
-      simpleType = false
-    }
+    for (let child of children) {
+      if (isType(child, ['null', 'boolean'])) {
+        child = ''
+      }
 
-    if (simpleType && lastSimpleType) {
-      children[children.length - 1] += child
-    } else {
-      children.push(child)
-    }
+      if (isType(child, ['string', 'number'])) {
+        child = String(child)
+        simpleType = true
+      } else if (isType(child, 'function')) {
+        simpleType = false
+      }
 
-    lastSimpleType = simpleType
+      if (simpleType && lastSimpleType) {
+        postChildren[postChildren.length - 1] += child
+      } else {
+        postChildren.push(child)
+      }
+
+      lastSimpleType = simpleType
+    }
   }
 
   return new VNode(
