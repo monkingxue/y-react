@@ -2,17 +2,17 @@
  * Created by xueyingchen.
  */
 
-export default isType = (variable, typeInfo) => {
+export default (variable, typeInfo) => {
   const infoT = what(typeInfo)
 
   if (infoT !== 'array') {
     if (infoT === 'string')
       return what(variable) === typeInfo
 
-    throw new TypeError()
+    throw new TypeError('Error typeInfo!')
   }
 
-  return typeInfo.some(info => what(v) === variable)
+  return typeInfo.some(info => what(variable) === info)
 }
 
 function what (v) {
