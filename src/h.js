@@ -29,6 +29,7 @@ export default function h (nodeName, attributes, ...children) {
       }
 
       lastSimpleType = simpleType
+      simpleType = false
     }
   }
 
