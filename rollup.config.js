@@ -1,3 +1,6 @@
+/**
+ * Created by xueyingchen.
+ */
 // Rollup plugins
 import babel from 'rollup-plugin-babel'
 
