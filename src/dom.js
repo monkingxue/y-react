@@ -1,7 +1,9 @@
 /**
  * Created by xueyingchen.
  */
-import isType from './utils/isType'
+import isType, { isNull } from './utils/isType'
+import { IS_NON_DIMENSIONAL } from './constants'
+import extend from './utils/extend'
 
 export function setAccessor (node, name, value = '') {
 
@@ -19,7 +21,7 @@ export function setAccessor (node, name, value = '') {
     if (value && isType(value, 'object')) {
       for (let i in value) {
         if (value.hasOwnProperty(i)) {
-          node.style[i] = isType(value[i], 'number') && value[i] + 'px'
+          node.style[i] = isType(value[i], 'number') && value[i] + IS_NON_DIMENSIONAL.test(i) === false ? 'px' : ''
         }
       }
     }
@@ -56,4 +58,20 @@ export function createNode (nodeName) {
  */
 function eventProxy (e) {
   return this._listeners[e.type](e)
+}
+
+/**
+ *
+ * @param {VNode} vnode
+ * @return {*}
+ */
+export function getNodeProps (vnode) {
+  let props = extend({}, vnode.attributes, {children: vnode.children})
+
+  let defaultProps = vnode.nodeName.defaultProps
+  if (!isNull(defaultProps)) {
+    props = extend(defaultProps, props)
+  }
+
+  return props
 }
