@@ -26,4 +26,6 @@ function what (v) {
   return ({}).toString.call(v).slice(8, -1).toLowerCase()
 }
 
-export const eqNull = v => isType(v, ['null', 'undefined'])
+export const isNull = v => isType(v, ['null', 'undefined'])
+
+export default isType
