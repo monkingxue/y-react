@@ -4,7 +4,7 @@
 import isType, { isNull } from './utils/isType'
 import { setAccessor, createNode } from './dom'
 import { buildComponentFromVNode } from './component'
-import { SYNC_RENDER } from './constants'
+import { SYNC_RENDER, FORCE_RENDER } from './constants'
 
 export default function render (vnode, parent, merge) {
   diff(vnode, merge, parent)
@@ -62,8 +62,8 @@ function diff (vnode, dom, parent) {
   diffAttributes(out, attributes)
 
   if (children.length > 0) {
-    children.forEach(child => {
-      const ret = diff(child, dom, out)
+    children.forEach((child, idx) => {
+      const ret = diff(child, dom && dom.children[idx], out)
       out.appendChild(ret)
     })
   }
@@ -111,8 +111,7 @@ export function renderComponent (component, renderMode) {
       && component.shouldComponentUpdate
       && component.shouldComponentUpdate(props, state, context) === false) {
       skip = true
-    }
-    else if (component.componentWillUpdate) {
+    } else if (component.componentWillUpdate) {
       component.componentWillUpdate(props, state, context)
     }
     component.props = props
@@ -125,7 +124,6 @@ export function renderComponent (component, renderMode) {
 
   if (!skip) {
     rendered = component.render(props, state, context)
-    console.log(component)
 
     if (component.getChildContext) {
       context = extend({}, context, component.getChildContext())
@@ -149,7 +147,7 @@ export function renderComponent (component, renderMode) {
         inst.nextBase = inst.nextBase || nextBase
         inst._parentComponent = component
         setComponentProps(inst, childProps, NO_RENDER, context, false)
-        renderComponent(inst, SYNC_RENDER, mountAll, true)
+        renderComponent(inst, SYNC_RENDER)
       }
 
       base = inst.base
@@ -164,7 +162,7 @@ export function renderComponent (component, renderMode) {
 
       if (initialBase || renderMode === SYNC_RENDER) {
         if (cbase) cbase._component = null
-        base = diff(rendered, cbase, initialBase)
+        base = diff(rendered, cbase, initialBase && initialBase.parentNode)
       }
     }
 
@@ -184,10 +182,6 @@ export function renderComponent (component, renderMode) {
   }
 
   if (!skip) {
-    // Ensure that pending componentDidMount() hooks of child components
-    // are called before the componentDidUpdate() hook in the parent.
-    // Note: disabled as it causes duplicate hooks, see https://github.com/developit/preact/issues/750
-    // flushMounts();
 
     if (component.componentDidUpdate) {
       component.componentDidUpdate(previousProps, previousState, previousContext)

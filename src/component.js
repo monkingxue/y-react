@@ -3,6 +3,7 @@
  */
 import extend from './utils/extend'
 import isType from './utils/isType'
+import defer from './utils/defer'
 import h from './h'
 import { FORCE_RENDER, SYNC_RENDER, NO_RENDER } from './constants'
 import { renderComponent } from './render'
@@ -57,14 +58,13 @@ export function reRender () {
   willRenderedComponents = []
   while (component = list.pop()) {
     if (component._dirty)
-      renderComponent(component)
+      renderComponent(component, SYNC_RENDER)
   }
 }
 
 export function buildComponentFromVNode (dom, vnode, context) {
 
   const props = getNodeProps(vnode)
-
   const component = createComponent(vnode.nodeName, props, context)
 
   setComponentProps(component, props, SYNC_RENDER, context)
@@ -76,7 +76,6 @@ export function createComponent (ctor, props, context) {
 
   if (ctor.prototype && ctor.prototype.render) {
     instance = new ctor(props, context)
-    Component.call(instance, props, context)
   } else {
     instance = new Component(props, context)
     instance.constructor = ctor
